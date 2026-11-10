@@ -4,12 +4,12 @@ Thanks for helping. Small, focused pull requests are the easiest to review.
 
 ## Reporting a broken link
 
-Most "it doesn't download" reports are fixed by a newer yt-dlp, so first try `pip install -U aio-dl`.
+Most "it doesn't download" reports are fixed by a newer yt-dlp, so first try `pip install -U aio-grab`.
 If it still fails, open an issue with:
 
 - a **public** link that shows the problem (never one that needs your login),
-- the output of `aio-dl -v <link>`,
-- `aio-dl --version`.
+- the output of `aio-grab -v <link>`,
+- `aio-grab --version`.
 
 ## Development setup
 
@@ -25,7 +25,7 @@ uv run aio-server        # web app on http://127.0.0.1:8000
 
 The repository is a uv workspace with two packages:
 
-- `core/` is **aio-dl**, the library and CLI. Download logic lives here, so the CLI, web app and bot all behave the same.
+- `core/` is **aio-grab**, the library and CLI. Download logic lives here, so the CLI, web app and bot all behave the same.
 - `server/` is **aio-server**: the HTTP API, web app and Telegram bot. It holds no download logic of its own.
 
 ## Guidelines
@@ -37,6 +37,6 @@ The repository is a uv workspace with two packages:
 
 ## Releasing (maintainers)
 
-1. Bump `__version__` in `core/src/aio_dl/__init__.py` (and `server/aio_server/__init__.py`).
+1. Bump `__version__` in `core/src/aio_grab/__init__.py` (and `server/aio_server/__init__.py`).
 2. Commit, then tag and push: `git tag v0.2.0 && git push origin v0.2.0`.
-3. The release workflow publishes aio-dl to PyPI, pushes the Docker image to `ghcr.io/fonneyx/aio`, and creates the GitHub release.
+3. The release workflow publishes aio-grab to PyPI, pushes the Docker image to `ghcr.io/fonneyx/aio`, and creates the GitHub release.

@@ -2,9 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from aio_dl import Engine, Request
-from aio_dl.engine import _ProgressTracker, friendly_error
-from aio_dl.summary import summarize
+from aio_grab import Engine, Request
+from aio_grab.engine import _ProgressTracker, friendly_error
+from aio_grab.summary import summarize
 
 # Real yt-dlp error messages captured from live runs.
 REPORT_BOILERPLATE = (

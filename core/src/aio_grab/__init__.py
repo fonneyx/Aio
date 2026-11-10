@@ -1,9 +1,9 @@
-"""aio-dl: download video, audio and images from YouTube and 1,000+ other sites with one call.
+"""aio-grab: download video, audio and images from YouTube and 1,000+ other sites with one call.
 
-    import aio_dl
+    import aio_grab
 
-    info = aio_dl.probe("https://youtu.be/dQw4w9WgXcQ")      # qualities and sizes, no download
-    files = aio_dl.download("https://youtu.be/dQw4w9WgXcQ", "downloads", kind="audio", audio_format="mp3")
+    info = aio_grab.probe("https://youtu.be/dQw4w9WgXcQ")      # qualities and sizes, no download
+    files = aio_grab.download("https://youtu.be/dQw4w9WgXcQ", "downloads", kind="audio", audio_format="mp3")
 
 For cookies, a proxy or a custom ffmpeg, create an Engine and use its probe() and download().
 """

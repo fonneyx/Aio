@@ -15,8 +15,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import AfterValidator, BaseModel, Field, field_validator, model_validator
 
-import aio_dl
-from aio_dl import Engine, EngineError, Request, Status, parse_time
+import aio_grab
+from aio_grab import Engine, EngineError, Request, Status, parse_time
 
 from . import __version__
 from .auth import add_basic_auth
@@ -128,7 +128,7 @@ def create_app(settings: Settings | None = None, engine: Engine | None = None) -
         return {
             "status": "ok",
             "version": __version__,
-            "aio_dl": aio_dl.__version__,
+            "aio_grab": aio_grab.__version__,
             "yt_dlp": yt_dlp.version.__version__,
             "js_runtimes": list(getattr(engine, "js_runtimes", {})),
         }

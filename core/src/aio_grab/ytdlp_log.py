@@ -1,6 +1,6 @@
 import logging
 
-log = logging.getLogger("aio_dl.yt_dlp")
+log = logging.getLogger("aio_grab.yt_dlp")
 
 
 class YtdlpLogger:

@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from aio_dl import Engine, EngineError, Request
-from aio_dl.engine import UNSUPPORTED
-from aio_dl.gallery import _error, platform_name
+from aio_grab import Engine, EngineError, Request
+from aio_grab.engine import UNSUPPORTED
+from aio_grab.gallery import _error, platform_name
 
 
 class FakeGallery:
@@ -16,7 +16,7 @@ class FakeGallery:
         self.downloads = 0
 
     def list_files(self, url):
-        from aio_dl.gallery import GalleryError
+        from aio_grab.gallery import GalleryError
 
         if self.error:
             raise GalleryError(self.error)

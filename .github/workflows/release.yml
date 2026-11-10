@@ -1,6 +1,6 @@
-# Push a tag like v0.1.0 to publish aio-dl to PyPI and the Docker image to GHCR.
+# Push a tag like v0.1.0 to publish aio-grab to PyPI and the Docker image to GHCR.
 # PyPI uses trusted publishing: add this repository and workflow (release.yml, environment "pypi")
-# as a trusted publisher of the aio-dl project on pypi.org before the first release.
+# as a trusted publisher of the aio-grab project on pypi.org before the first release.
 name: Release
 
 on:
@@ -19,9 +19,9 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - name: Check the tag matches the package version
         run: |
-          version=$(grep -Po '__version__ = "\K[^"]+' core/src/aio_dl/__init__.py)
+          version=$(grep -Po '__version__ = "\K[^"]+' core/src/aio_grab/__init__.py)
           test "v$version" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME != v$version"; exit 1; }
-      - run: uv build --package aio-dl -o dist
+      - run: uv build --package aio-grab -o dist
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   docker:

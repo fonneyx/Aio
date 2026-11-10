@@ -5,7 +5,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
-from aio_dl import Engine, EngineError
+from aio_grab import Engine, EngineError
 
 from .jobs import JobStore, Status
 from .storage import Storage

@@ -1,12 +1,12 @@
 [project]
 name = "aio-server"
 dynamic = ["version"]
-description = "Self-hosted Aio: web app, HTTP API and Telegram bot on top of aio-dl"
+description = "Self-hosted Aio: web app, HTTP API and Telegram bot on top of aio-grab"
 license = "GPL-3.0-or-later"
 authors = [{ name = "fonneyx" }]
 requires-python = ">=3.12"
 dependencies = [
-    "aio-dl",
+    "aio-grab",
     "fastapi>=0.157.0",
     "python-telegram-bot>=22",
     "uvicorn[standard]>=0.54.0",
@@ -27,7 +27,7 @@ path = "aio_server/__init__.py"
 packages = ["aio_server"]
 
 [tool.uv.sources]
-aio-dl = { workspace = true }
+aio-grab = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

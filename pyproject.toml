@@ -23,4 +23,4 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 ignore = ["E501", "RUF001", "RUF002", "RUF003", "SIM105", "B008"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["aio_dl", "aio_server"]
+known-first-party = ["aio_grab", "aio_server"]

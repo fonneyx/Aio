@@ -1,6 +1,6 @@
 import pytest
 
-from aio_dl import Request, parse_time
+from aio_grab import Request, parse_time
 
 
 def test_defaults():

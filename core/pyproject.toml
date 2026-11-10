@@ -1,5 +1,5 @@
 [project]
-name = "aio-dl"
+name = "aio-grab"
 dynamic = ["version"]
 description = "Download video, audio and images from YouTube and 1,000+ sites with one call. A friendly layer over yt-dlp, gallery-dl and ffmpeg."
 readme = "README.md"
@@ -33,14 +33,14 @@ Homepage = "https://github.com/fonneyx/Aio"
 Issues = "https://github.com/fonneyx/Aio/issues"
 
 [project.scripts]
-aio-dl = "aio_dl.cli:main"
+aio-grab = "aio_grab.cli:main"
 
 [build-system]
 requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
-path = "src/aio_dl/__init__.py"
+path = "src/aio_grab/__init__.py"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

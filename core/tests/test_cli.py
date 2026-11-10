@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from aio_dl import cli
+from aio_grab import cli
 
 
 class FakeEngine:

@@ -8,8 +8,8 @@
 as a Python library, a command-line tool, and a self-hosted app for your browser, phone and Telegram.
 
 [![CI](https://github.com/fonneyx/Aio/actions/workflows/ci.yml/badge.svg)](https://github.com/fonneyx/Aio/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/aio-dl)](https://pypi.org/project/aio-dl/)
-[![Python](https://img.shields.io/pypi/pyversions/aio-dl)](https://pypi.org/project/aio-dl/)
+[![PyPI](https://img.shields.io/pypi/v/aio-grab)](https://pypi.org/project/aio-grab/)
+[![Python](https://img.shields.io/pypi/pyversions/aio-grab)](https://pypi.org/project/aio-grab/)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
 </div>
@@ -53,17 +53,17 @@ Open http://localhost:8000. Everything is included: ffmpeg, a JavaScript runtime
 ### 2. Command line
 
 ```bash
-pip install aio-dl        # or: uv tool install aio-dl / pipx install aio-dl
+pip install aio-grab        # or: uv tool install aio-grab / pipx install aio-grab
 ```
 
 ```bash
-aio-dl https://youtu.be/dQw4w9WgXcQ                       # best video, up to 4K
-aio-dl -q 1080 --compatible URL                           # 1080p H.264, plays everywhere
-aio-dl -x URL                                             # MP3, 320 kbps
-aio-dl -x -f flac URL                                     # lossless audio
-aio-dl --start 1:30 --end 2:00 URL                        # just that clip
-aio-dl -i URL                                             # list qualities and sizes, no download
-aio-dl -a links.txt -o ~/Downloads                        # many links from a file
+aio-grab https://youtu.be/dQw4w9WgXcQ                       # best video, up to 4K
+aio-grab -q 1080 --compatible URL                           # 1080p H.264, plays everywhere
+aio-grab -x URL                                             # MP3, 320 kbps
+aio-grab -x -f flac URL                                     # lossless audio
+aio-grab --start 1:30 --end 2:00 URL                        # just that clip
+aio-grab -i URL                                             # list qualities and sizes, no download
+aio-grab -a links.txt -o ~/Downloads                        # many links from a file
 ```
 
 ffmpeg is used from your PATH; if there is none, a static build is downloaded on first use.
@@ -72,18 +72,18 @@ YouTube also needs a JavaScript runtime on PATH: [Node](https://nodejs.org), [De
 ### 3. Python library
 
 ```python
-import aio_dl
+import aio_grab
 
-info = aio_dl.probe("https://youtu.be/dQw4w9WgXcQ")
+info = aio_grab.probe("https://youtu.be/dQw4w9WgXcQ")
 print(info["title"], [row["label"] for row in info["video"]])   # ... ['4K', '1440p', '1080p', ...]
 
-files = aio_dl.download("https://youtu.be/dQw4w9WgXcQ", "downloads", kind="audio", audio_format="mp3")
+files = aio_grab.download("https://youtu.be/dQw4w9WgXcQ", "downloads", kind="audio", audio_format="mp3")
 ```
 
 Need cookies, a proxy or progress updates? Use an `Engine`. It is thread-safe, so one instance can serve a whole app:
 
 ```python
-from aio_dl import Engine, Request
+from aio_grab import Engine, Request
 
 engine = Engine(cookies_file="cookies.txt", proxy="http://proxy:8080")
 request = Request("https://youtu.be/dQw4w9WgXcQ", quality="720", codec="compatible", start="0:30", end="1:00")
@@ -130,18 +130,18 @@ Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 uv sync --all-packages
 uv run aio-server          # web app on http://127.0.0.1:8000
 uv run aio-bot             # Telegram bot
-uv run aio-dl --help       # CLI
+uv run aio-grab --help       # CLI
 uv run pytest              # tests
 ```
 
 ```
-core/     aio-dl: the library and CLI (published to PyPI)
-  src/aio_dl/
+core/     aio-grab: the library and CLI (published to PyPI)
+  src/aio_grab/
     engine.py    yt-dlp + ffmpeg + gallery-dl: probing, format choice, trimming, progress, friendly errors
     request.py   Request options and validation
     summary.py   probe results: qualities, sizes, codecs
     gallery.py   image galleries through gallery-dl
-    cli.py       the aio-dl command
+    cli.py       the aio-grab command
 server/   aio-server: web app, HTTP API and Telegram bot
   aio_server/
     api.py       FastAPI app, request validation, serves the web app
@@ -157,7 +157,7 @@ server/   aio-server: web app, HTTP API and Telegram bot
 - **Single process.** Jobs live in memory, so a restart forgets them and clears their files.
 - **Posts and short playlists** of up to 20 items are downloaded together. Whole channels and long playlists aren't supported yet.
 - **Some sites need a login** for some content: export your browser's cookies to a `cookies.txt` and set `AIO_COOKIES_FILE`.
-- **When a site breaks**, it's almost always fixed by a newer yt-dlp: `pip install -U aio-dl` or `docker compose pull`.
+- **When a site breaks**, it's almost always fixed by a newer yt-dlp: `pip install -U aio-grab` or `docker compose pull`.
 
 ## Responsible use
 

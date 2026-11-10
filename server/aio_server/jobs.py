@@ -12,7 +12,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from aio_dl import Request, Status
+from aio_grab import Request, Status
 
 __all__ = ["Job", "JobStore", "Request", "Status", "new_job_id"]
 

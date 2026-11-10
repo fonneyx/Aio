@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Aio is built on yt-dlp and gallery-dl. If a site recently changed, updating usually fixes it:
-        `pip install -U aio-dl` (or `docker compose pull`).
+        `pip install -U aio-grab` (or `docker compose pull`).
   - type: input
     id: url
     attributes:
@@ -16,18 +16,18 @@ body:
     id: surface
     attributes:
       label: Where
-      options: [Library (Python), CLI (aio-dl), Web app, Telegram bot, Docker]
+      options: [Library (Python), CLI (aio-grab), Web app, Telegram bot, Docker]
     validations:
       required: true
   - type: textarea
     id: what
     attributes:
       label: What happened
-      description: The error message, and what you expected instead. For the CLI, add the output of `aio-dl -v ...`.
+      description: The error message, and what you expected instead. For the CLI, add the output of `aio-grab -v ...`.
     validations:
       required: true
   - type: input
     id: version
     attributes:
       label: Versions
-      description: "`aio-dl --version`, or the yt-dlp version shown in the web app's header"
+      description: "`aio-grab --version`, or the yt-dlp version shown in the web app's header"

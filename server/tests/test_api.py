@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from aio_dl import EngineError, Request, Status
+from aio_grab import EngineError, Request, Status
 from aio_server.api import create_app
 from aio_server.config import Settings
 from aio_server.jobs import JobStore

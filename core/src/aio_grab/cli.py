@@ -1,4 +1,4 @@
-"""Command line: aio-dl URL [URL ...]"""
+"""Command line: aio-grab URL [URL ...]"""
 
 import argparse
 import json
@@ -13,22 +13,22 @@ from .engine import Engine, EngineError
 from .request import AUDIO_FORMATS, CONTAINERS, Request
 
 EPILOG = """examples:
-  aio-dl https://youtu.be/dQw4w9WgXcQ                 best video, up to 4K
-  aio-dl -q 1080 --compatible URL                     1080p H.264, plays everywhere
-  aio-dl -x URL                                       MP3, 320 kbps
-  aio-dl -x -f flac URL                               lossless audio
-  aio-dl --start 1:30 --end 2:00 URL                  just that clip
-  aio-dl --info URL                                   list qualities and sizes, no download
+  aio-grab https://youtu.be/dQw4w9WgXcQ                 best video, up to 4K
+  aio-grab -q 1080 --compatible URL                     1080p H.264, plays everywhere
+  aio-grab -x URL                                       MP3, 320 kbps
+  aio-grab -x -f flac URL                               lossless audio
+  aio-grab --start 1:30 --end 2:00 URL                  just that clip
+  aio-grab --info URL                                   list qualities and sizes, no download
 """
 
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="aio-dl", description="Download video, audio and images from YouTube and 1,000+ other sites.",
+        prog="aio-grab", description="Download video, audio and images from YouTube and 1,000+ other sites.",
         epilog=EPILOG, formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("urls", nargs="*", metavar="URL", help="links to download")
-    p.add_argument("-V", "--version", action="version", version=f"aio-dl {__version__}")
+    p.add_argument("-V", "--version", action="version", version=f"aio-grab {__version__}")
     p.add_argument("-o", "--output", type=Path, default=Path("."), metavar="DIR", help="folder to save into (default: here)")
     p.add_argument("-a", "--batch-file", type=Path, metavar="FILE", help="read links from a file, one per line")
     p.add_argument("-i", "--info", action="store_true", help="show what a link offers instead of downloading")
@@ -77,13 +77,13 @@ def main(argv: list[str] | None = None) -> int:
         urls += [line.strip() for line in lines if line.strip() and not line.lstrip().startswith("#")]
     if not urls:
         parser.print_usage(sys.stderr)
-        print("aio-dl: error: give at least one URL", file=sys.stderr)
+        print("aio-grab: error: give at least one URL", file=sys.stderr)
         return 2
 
     try:
         requests = [_request(url, args) for url in urls]
     except ValueError as e:
-        print(f"aio-dl: error: {e}", file=sys.stderr)
+        print(f"aio-grab: error: {e}", file=sys.stderr)
         return 2
 
     engine = Engine(ffmpeg=args.ffmpeg, cookies_file=args.cookies, proxy=args.proxy)
@@ -110,7 +110,7 @@ def main(argv: list[str] | None = None) -> int:
         except EngineError as e:
             failures += 1
             results.append({"url": request.url, "error": str(e)})
-            print(f"aio-dl: {request.url}: {e}", file=sys.stderr)
+            print(f"aio-grab: {request.url}: {e}", file=sys.stderr)
         except KeyboardInterrupt:
             print("\nCancelled", file=sys.stderr)
             return 130
