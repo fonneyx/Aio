@@ -1,0 +1,11 @@
+name: Feature request
+description: An idea for Aio
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like to do?
+      description: Describe the situation, not just the solution. "I want to save a whole playlist as MP3s" beats "add --playlist".
+    validations:
+      required: true

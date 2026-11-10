@@ -1,0 +1,26 @@
+# Workspace root: `uv sync --all-packages` installs the library (core/) and the server (server/) together.
+
+[tool.uv.workspace]
+members = ["core", "server"]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.16.0",
+    "pytest>=9.1.1",
+    "ruff>=0.14",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["core/tests", "server/tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["server/storage"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E501", "RUF001", "RUF002", "RUF003", "SIM105", "B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["aio_dl", "aio_server"]

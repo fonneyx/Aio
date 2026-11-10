@@ -1,0 +1,33 @@
+name: Bug report
+description: A link that fails, or something that doesn't work as described
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Aio is built on yt-dlp and gallery-dl. If a site recently changed, updating usually fixes it:
+        `pip install -U aio-dl` (or `docker compose pull`).
+  - type: input
+    id: url
+    attributes:
+      label: Link
+      description: A public link that shows the problem. Leave out anything private.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where
+      options: [Library (Python), CLI (aio-dl), Web app, Telegram bot, Docker]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The error message, and what you expected instead. For the CLI, add the output of `aio-dl -v ...`.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versions
+      description: "`aio-dl --version`, or the yt-dlp version shown in the web app's header"

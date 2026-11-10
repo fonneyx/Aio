@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#14130f">
+<meta name="description" content="Paste a link, keep the file: video, audio and images from 1,000+ sites.">
+<title>Aio</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='9' fill='%2314130f'/><circle cx='16' cy='16' r='6.5' fill='none' stroke='%23f2efe9' stroke-width='3'/><rect x='21' y='21' width='6' height='6' rx='1.5' fill='%23ff5b1f'/></svg>">
+<style>
+  @font-face { font-family: "Geist"; src: url("fonts/geist.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+  @font-face { font-family: "Geist Mono"; src: url("fonts/geist-mono.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+
+  :root {
+    --bg: #0c0b0a;
+    --surface: #141311;
+    --surface-2: #1b1a17;
+    --surface-3: #24221f;
+    --line: #2a2825;
+    --line-strong: #3a3733;
+    --text: #f2efe9;
+    --muted: #9a958c;
+    --faint: #66625b;
+    --accent: #ff5b1f;
+    --accent-ink: #1a0800;
+    --accent-soft: rgb(255 91 31 / 0.12);
+    --ok: #8fd694;
+    --danger: #ff7a66;
+    --radius: 12px;
+    --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Geist Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f4f0;
+      --surface: #ffffff;
+      --surface-2: #f1eee9;
+      --surface-3: #e8e4dd;
+      --line: #e3dfd8;
+      --line-strong: #d2cdc4;
+      --text: #171512;
+      --muted: #6b665e;
+      --faint: #9b968d;
+      --accent: #e94b10;
+      --accent-ink: #ffffff;
+      --accent-soft: rgb(233 75 16 / 0.09);
+      --ok: #2f8a3e;
+      --danger: #c9361f;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14.5px/1.5 var(--sans);
+    letter-spacing: -0.006em;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select { font: inherit; color: inherit; letter-spacing: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+  .mono { font-family: var(--mono); font-size: 0.92em; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  .app { max-width: 1040px; margin: 0 auto; padding: 0 24px 96px; }
+
+  /* ---- top bar ---- */
+  .top { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .brand { display: inline-flex; align-items: baseline; gap: 2px; font-weight: 700; font-size: 22px; letter-spacing: -0.05em; color: var(--text); text-decoration: none; }
+  .brand i { width: 7px; height: 7px; border-radius: 2px; background: var(--accent); display: inline-block; transform: translateY(-1px); }
+  .engine { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+  .engine::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
+  .engine.ready::before { background: var(--ok); box-shadow: 0 0 0 3px rgb(143 214 148 / 0.15); }
+
+  /* ---- intake ---- */
+  .intake { padding: 56px 0 28px; }
+  .eyebrow { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.12em; margin: 0 0 18px; }
+  h1 { font-size: clamp(40px, 7.2vw, 76px); line-height: 0.94; letter-spacing: -0.045em; font-weight: 640; margin: 0 0 36px; }
+  h1 span { color: var(--faint); }
+  .eyebrow, h1 { transition: font-size .25s ease, margin .25s ease, opacity .2s; }
+  .intake.compact { padding-top: 20px; }
+  .intake.compact .eyebrow { display: none; }
+  .intake.compact h1 { font-size: 30px; margin-bottom: 20px; }
+  .intake.compact h1 br { display: none; }
+  .intake.compact h1 span::before { content: " "; }
+  .bar.filled kbd { display: none; }
+  .bar {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 16px;
+    padding: 8px 8px 8px 18px; transition: border-color .15s, box-shadow .15s;
+  }
+  .bar:focus-within { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .bar .icon { color: var(--faint); }
+  .bar input { flex: 1; min-width: 0; height: 44px; background: none; border: 0; outline: none; font-size: 17px; }
+  .bar input::placeholder { color: var(--faint); }
+  kbd { font-family: var(--mono); font-size: 11px; color: var(--muted); border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 6px; padding: 2px 6px; white-space: nowrap; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 44px; padding: 0 18px; border-radius: 11px; border: 1px solid var(--line-strong);
+    background: var(--surface-2); font-weight: 560; white-space: nowrap; text-decoration: none; color: var(--text);
+    transition: background .15s, transform .08s, opacity .15s;
+  }
+  .btn:hover { background: var(--surface-3); }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--accent); border-color: transparent; color: var(--accent-ink); }
+  .btn.primary:hover { background: color-mix(in srgb, var(--accent) 88%, white); }
+  .btn:disabled { opacity: .5; cursor: default; transform: none; }
+  .hint { color: var(--faint); font-size: 12.5px; margin: 12px 2px 0; }
+  .error { color: var(--danger); margin: 12px 2px 0; }
+  .error:empty { display: none; }
+
+  /* ---- preview ---- */
+  .preview { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr); gap: 32px; padding: 28px 0 8px; border-top: 1px solid var(--line); margin-top: 28px; animation: rise .25s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  .thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; background: var(--surface-2); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .duration { position: absolute; right: 10px; bottom: 10px; background: rgb(0 0 0 / .72); color: #fff; padding: 2px 7px; border-radius: 6px; font-size: 12px; }
+  .meta { padding-top: 16px; }
+  .platform { display: inline-block; color: var(--accent); font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 8px; }
+  .title { font-size: 21px; line-height: 1.25; letter-spacing: -0.02em; font-weight: 600; margin: 0 0 6px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .uploader { color: var(--muted); margin: 0; }
+
+  .tabs { display: inline-flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin-bottom: 16px; }
+  .tab { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 14px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-weight: 540; }
+  .tab[aria-selected="true"] { background: var(--surface-3); color: var(--text); }
+  .tab .icon { width: 16px; height: 16px; }
+
+  .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; font-family: var(--mono); }
+  .rows { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+  .row {
+    display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+    width: 100%; min-height: 50px; padding: 8px 16px; border: 0; border-top: 1px solid var(--line);
+    background: none; text-align: left; transition: background .12s;
+  }
+  .row:first-child { border-top: 0; }
+  .row:hover { background: var(--surface-2); }
+  .row[aria-checked="true"] { background: var(--surface-2); box-shadow: inset 2px 0 0 var(--accent); }
+  .row:disabled { cursor: default; opacity: .38; background: none; }
+  .row .q { font-weight: 620; font-size: 15.5px; letter-spacing: -0.02em; }
+  .row .spec { color: var(--muted); display: flex; gap: 8px; align-items: center; min-width: 0; overflow: hidden; white-space: nowrap; }
+  .row .size { color: var(--text); }
+  .row[aria-checked="true"] .q { color: var(--accent); }
+  .tag { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line-strong); color: var(--muted); }
+  .tag.hot { border-color: transparent; background: var(--accent-soft); color: var(--accent); }
+  .row.audio { grid-template-columns: 76px minmax(0, 1fr) auto; }
+  .preview > div { min-width: 0; }
+  .row .desc { color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; margin-top: 18px; }
+  .setting { display: grid; gap: 7px; }
+  .seg { display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+  .seg button { flex: 1; height: 30px; border: 0; border-radius: 7px; background: none; color: var(--muted); font-size: 13px; font-weight: 520; white-space: nowrap; padding: 0 8px; }
+  .seg button[aria-pressed="true"] { background: var(--surface-3); color: var(--text); }
+  .seg button:disabled { opacity: .35; cursor: default; }
+  select {
+    height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); padding: 0 34px 0 12px; font-size: 13px;
+    appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239a958c' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .note { color: var(--faint); font-size: 12.5px; margin: 10px 2px 0; }
+  .note:empty { display: none; }
+
+  .extras { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .chip-toggle {
+    display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 13px; font-weight: 520;
+  }
+  .chip-toggle[aria-pressed="true"] { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); color: var(--text); background: var(--accent-soft); }
+  .chip-toggle[aria-pressed="true"] .icon { color: var(--accent); }
+  .chip-toggle .icon { width: 16px; height: 16px; }
+  .trim { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; padding: 12px; border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+  .trim label { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+  .trim input[type="text"] { width: 92px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); padding: 0 10px; font-family: var(--mono); font-size: 13px; }
+  .trim input[type="checkbox"] { accent-color: var(--accent); }
+
+  .action { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .choice { color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .btn.big { height: 50px; padding: 0 22px; font-size: 15.5px; border-radius: 12px; }
+  .btn.big .mono { opacity: .75; font-weight: 500; }
+
+  /* loading skeleton */
+  .skeleton { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr); gap: 32px; padding: 28px 0 8px; border-top: 1px solid var(--line); margin-top: 28px; }
+  .sk { border-radius: var(--radius); background: linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 40%, var(--surface) 80%); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* ---- queue ---- */
+  .queue { margin-top: 56px; }
+  .queue-head { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .queue-head h2 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .queue-head .mono { color: var(--faint); font-size: 12px; }
+  #jobs { list-style: none; margin: 0; padding: 0; }
+  .job { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); animation: rise .2s ease both; }
+  .jthumb { aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; background: var(--surface-2); display: grid; place-items: center; color: var(--faint); }
+  .jthumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .jthumb img:not([src]) { display: none; }
+  .jtitle { font-weight: 560; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jline { display: flex; gap: 10px; color: var(--muted); font-size: 12.5px; margin-top: 2px; white-space: nowrap; overflow: hidden; }
+  .jline .state { color: var(--text); }
+  .job[data-status="failed"] .jline .state { color: var(--danger); white-space: normal; }
+  .job[data-status="completed"] .jline .state { color: var(--ok); }
+  .jbar { height: 3px; border-radius: 3px; background: var(--surface-3); margin-top: 10px; overflow: hidden; }
+  .jbar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: inherit; transition: width .4s ease; }
+  .job.indeterminate .jbar i { width: 30%; animation: slide 1.1s ease-in-out infinite; }
+  @keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+  .job[data-status="completed"] .jbar, .job[data-status="failed"] .jbar { display: none; }
+  .jside { display: flex; align-items: center; gap: 6px; }
+  .icon-btn { width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: 9px; background: none; color: var(--faint); }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+  .btn.save { height: 36px; padding: 0 14px; font-size: 13.5px; }
+  .empty { color: var(--faint); padding: 28px 0; margin: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
+    .job.indeterminate .jbar i { width: 100%; opacity: .4; }
+  }
+  @media (max-width: 820px) {
+    .preview, .skeleton { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .meta { padding-top: 12px; }
+  }
+  @media (max-width: 560px) {
+    .app { padding: 0 16px 72px; }
+    .intake { padding-top: 28px; }
+    .bar kbd { display: none; }
+    .bar { padding-left: 14px; }
+    .bar .btn { padding: 0 14px; }
+    .settings { grid-template-columns: 1fr; }
+    .row { grid-template-columns: 58px minmax(0, 1fr) auto; padding: 8px 12px; }
+    .job { grid-template-columns: 72px minmax(0, 1fr) auto; gap: 12px; }
+    .action { flex-direction: column; align-items: stretch; }
+    .btn.big { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M7 3v18M17 3v18M3 8h4M3 16h4M17 8h4M17 16h4"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></symbol>
+  <symbol id="i-skip" viewBox="0 0 24 24"><path d="m5 4 10 8-10 8z"/><path d="M19 5v14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <a class="brand" href="/" aria-label="Aio home">aio<i></i></a>
+    <span class="engine mono" id="engine">connecting</span>
+  </header>
+
+  <main>
+    <section class="intake">
+      <p class="eyebrow mono">Video · Audio · Images · 1,000+ sites</p>
+      <h1>Paste a link.<br><span>Keep the file.</span></h1>
+      <form class="bar" id="intake" novalidate>
+        <svg class="icon"><use href="#i-link"/></svg>
+        <input id="url" type="url" placeholder="youtube.com/watch?v=…" aria-label="Media link" autocomplete="off" spellcheck="false" autofocus>
+        <kbd id="paste-hint">Ctrl V</kbd>
+        <button class="btn primary" id="lookup" type="submit">Look up</button>
+      </form>
+      <p class="error" id="intake-error" role="alert"></p>
+      <p class="hint" id="intake-hint">Paste anywhere on the page. You'll see every available quality and its size before anything downloads.</p>
+
+      <div class="skeleton" id="skeleton" hidden aria-hidden="true">
+        <div><div class="sk" style="aspect-ratio:16/9"></div><div class="sk" style="height:22px;width:80%;margin-top:18px"></div><div class="sk" style="height:14px;width:40%;margin-top:10px"></div></div>
+        <div><div class="sk" style="height:40px;width:190px"></div><div class="sk" style="height:250px;margin-top:16px"></div></div>
+      </div>
+
+      <section class="preview" id="preview" hidden aria-label="Download options">
+        <div>
+          <div class="thumb"><img id="p-thumb" alt="" referrerpolicy="no-referrer"><span class="duration mono" id="p-duration"></span></div>
+          <div class="meta">
+            <span class="platform mono" id="p-platform"></span>
+            <h2 class="title" id="p-title"></h2>
+            <p class="uploader" id="p-uploader"></p>
+          </div>
+        </div>
+
+        <div>
+          <div class="tabs" role="tablist">
+            <button class="tab" role="tab" id="tab-video" aria-selected="true" aria-controls="pane-video"><svg class="icon"><use href="#i-film"/></svg>Video</button>
+            <button class="tab" role="tab" id="tab-audio" aria-selected="false" aria-controls="pane-audio"><svg class="icon"><use href="#i-music"/></svg>Audio</button>
+          </div>
+
+          <div id="pane-video" role="tabpanel">
+            <div class="rows" id="video-rows" role="radiogroup" aria-label="Quality"></div>
+            <p class="note" id="video-note"></p>
+            <div class="settings">
+              <div class="setting">
+                <span class="label">Codec</span>
+                <div class="seg" data-setting="codec">
+                  <button type="button" data-value="best" title="AV1 or VP9: the best picture YouTube has">Max quality</button>
+                  <button type="button" data-value="compatible" title="H.264 + AAC: plays on every device and editor">Plays everywhere</button>
+                </div>
+              </div>
+              <div class="setting">
+                <span class="label">Container</span>
+                <div class="seg" data-setting="container">
+                  <button type="button" data-value="mp4">MP4</button>
+                  <button type="button" data-value="mkv">MKV</button>
+                </div>
+              </div>
+              <div class="setting" id="hdr-setting">
+                <span class="label">Dynamic range</span>
+                <div class="seg" data-setting="hdr">
+                  <button type="button" data-value="false" title="Looks right on every screen">SDR</button>
+                  <button type="button" data-value="true" title="For HDR displays; looks washed out elsewhere">HDR</button>
+                </div>
+              </div>
+              <div class="setting" id="subs-setting">
+                <span class="label">Subtitles</span>
+                <select id="subtitles" aria-label="Subtitles"></select>
+              </div>
+            </div>
+          </div>
+
+          <div id="pane-audio" role="tabpanel" hidden>
+            <div class="rows" id="audio-rows" role="radiogroup" aria-label="Audio format"></div>
+            <div class="setting" id="bitrate-setting" style="margin-top:18px">
+              <span class="label">MP3 bitrate</span>
+              <div class="seg" data-setting="mp3Bitrate">
+                <button type="button" data-value="320">320 kbps</button>
+                <button type="button" data-value="256">256</button>
+                <button type="button" data-value="192">192</button>
+                <button type="button" data-value="128">128</button>
+              </div>
+            </div>
+            <p class="note" id="audio-note"></p>
+          </div>
+
+          <div id="pane-images" hidden>
+            <p class="note" id="images-note"></p>
+          </div>
+
+          <div class="extras">
+            <button type="button" class="chip-toggle" id="sponsorblock" aria-pressed="false" title="Cuts sponsor reads, self-promotion and 'like and subscribe' segments using SponsorBlock">
+              <svg class="icon"><use href="#i-skip"/></svg>Skip sponsors
+            </button>
+            <button type="button" class="chip-toggle" id="trim-toggle" aria-pressed="false" aria-controls="trim">
+              <svg class="icon"><use href="#i-scissors"/></svg>Trim
+            </button>
+          </div>
+          <div class="trim" id="trim" hidden>
+            <label>From <input type="text" id="start" placeholder="0:00" inputmode="numeric"></label>
+            <label>To <input type="text" id="end" placeholder="end" inputmode="numeric"></label>
+            <label title="Re-encodes around the cuts. Slow and CPU-heavy above 1080p."><input type="checkbox" id="precise">Exact cut (slower)</label>
+          </div>
+
+          <div class="action">
+            <span class="choice mono" id="choice"></span>
+            <button class="btn primary big" id="download" type="button"><svg class="icon"><use href="#i-download"/></svg>Download <span class="mono" id="download-size"></span></button>
+          </div>
+          <p class="error" id="download-error" role="alert"></p>
+        </div>
+      </section>
+    </section>
+
+    <section class="queue" aria-labelledby="queue-title">
+      <div class="queue-head"><h2 id="queue-title">Downloads</h2><span class="mono">Kept for 24 hours</span></div>
+      <ol id="jobs" aria-live="polite"></ol>
+      <p class="empty" id="empty">Nothing here yet.</p>
+    </section>
+  </main>
+</div>
+
+<template id="job-template">
+  <li class="job">
+    <div class="jthumb"><img alt="" referrerpolicy="no-referrer"><svg class="icon"><use href="#i-film"/></svg></div>
+    <div class="jbody">
+      <div class="jtitle"></div>
+      <div class="jline"><span class="state"></span><span class="spec mono"></span></div>
+      <div class="jbar"><i></i></div>
+    </div>
+    <div class="jside">
+      <a class="btn primary save" hidden><svg class="icon"><use href="#i-download"/></svg>Save</a>
+      <button type="button" class="icon-btn remove" aria-label="Remove from list"><svg class="icon"><use href="#i-x"/></svg></button>
+    </div>
+  </li>
+</template>
+
+<script>
+const AUDIO_FORMATS = [
+  { id: "original", name: "Original", desc: (a) => a ? `${a.codec} ${a.bitrate ?? ""} kbps, no conversion` : "Source audio, no conversion", tag: "Best" },
+  { id: "mp3", name: "MP3", desc: () => "Plays on anything" },
+  { id: "m4a", name: "M4A", desc: () => "AAC for Apple devices, copied without re-encoding when possible" },
+  { id: "opus", name: "Opus", desc: () => "Smallest file at the same quality" },
+  { id: "flac", name: "FLAC", desc: () => "Lossless container for editing" },
+  { id: "wav", name: "WAV", desc: () => "Uncompressed, for audio editors" },
+];
+const POLL_MS = 800;
+const SAVED_KEY = "aio.jobs";
+const $ = (id) => document.getElementById(id);
+
+// ---- selection state ----
+const state = {
+  url: null, summary: null, tab: "video",
+  res: null, codec: "best", hdr: false, container: "mp4", subtitles: "",
+  audioFormat: "original", mp3Bitrate: "320", sponsorblock: false, trim: false,
+};
+
+// ---- engine status ----
+fetch("/api/health").then((r) => r.json()).then((h) => {
+  $("engine").textContent = `yt-dlp ${h.yt_dlp}`;
+  $("engine").classList.add("ready");
+}).catch(() => { $("engine").textContent = "engine offline"; });
+
+// ---- intake ----
+const urlInput = $("url");
+let probeSeq = 0;
+
+$("intake").addEventListener("submit", (e) => { e.preventDefault(); probe(urlInput.value); });
+const syncFilled = () => $("intake").classList.toggle("filled", urlInput.value.length > 0);
+urlInput.addEventListener("input", syncFilled);
+urlInput.addEventListener("paste", (e) => {
+  const text = e.clipboardData?.getData("text");
+  if (text) { e.preventDefault(); urlInput.value = text.trim(); probe(text); }
+});
+document.addEventListener("paste", (e) => {
+  if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+  const text = e.clipboardData?.getData("text")?.trim();
+  if (text && /^https?:\/\//i.test(text)) { urlInput.value = text; probe(text); }
+});
+
+async function probe(raw) {
+  const url = raw.trim();
+  syncFilled();
+  $("intake-error").textContent = "";
+  if (!url) { urlInput.focus(); return; }
+  const seq = ++probeSeq;
+  $("preview").hidden = true;
+  $("skeleton").hidden = false;
+  $("intake-hint").hidden = true;
+  $("lookup").disabled = true;
+  try {
+    const res = await fetch("/api/probe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }) });
+    const data = await res.json();
+    if (seq !== probeSeq) return; // a newer lookup started
+    if (!res.ok) throw new Error(errorMessage(data));
+    showPreview(url, data);
+  } catch (err) {
+    if (seq !== probeSeq) return;
+    $("intake-error").textContent = err.message === "Failed to fetch" ? "Can't reach the Aio engine." : err.message;
+    $("intake-hint").hidden = false;
+  } finally {
+    if (seq === probeSeq) { $("skeleton").hidden = true; $("lookup").disabled = false; }
+  }
+}
+
+function errorMessage(data) {
+  const d = data?.detail;
+  if (typeof d === "string") return d;
+  if (Array.isArray(d) && d.length) return d[0].msg.replace(/^Value error, /, "");
+  return "Something went wrong.";
+}
+
+// ---- preview ----
+function showPreview(url, s) {
+  state.url = url;
+  state.summary = s;
+  const img = $("p-thumb");
+  img.src = s.thumbnail || "";
+  img.hidden = !s.thumbnail;
+  $("p-duration").textContent = s.duration ? clock(s.duration) : "";
+  $("p-duration").hidden = !s.duration;
+  $("p-platform").textContent = s.platform || hostname(url);
+  $("p-title").textContent = s.title || url;
+  $("p-uploader").textContent = [s.uploader, s.items > 1 ? `${s.items} items` : null].filter(Boolean).join(" · ");
+
+  // Below 360p isn't worth offering unless that's all there is.
+  s.video = s.video.filter((r) => r.res >= 360).length ? s.video.filter((r) => r.res >= 360) : s.video;
+  const rows = s.video;
+  state.res = (rows.find((r) => r.res === 1080) || rows[0])?.res ?? null;
+  state.hdr = false;
+  state.subtitles = "";
+  const images = s.kind === "images";
+  state.tab = images ? "images" : !rows.length ? "audio" : state.tab === "images" ? "video" : state.tab;
+  document.querySelector(".tabs").hidden = images;
+  document.querySelector(".extras").hidden = images;
+  $("images-note").textContent = images
+    ? (s.items > 1 ? `${s.items} images, saved together as one ZIP at full size.` : "One image, saved at full size.") : "";
+  $("tab-video").disabled = !rows.length;
+  $("hdr-setting").hidden = !rows.some((r) => r.hdr);
+  $("sponsorblock").hidden = !s.sponsorblock;
+  if (!s.sponsorblock) state.sponsorblock = false;
+
+  const subs = $("subtitles");
+  subs.replaceChildren(new Option("None", ""), ...s.subtitles.map((t) => new Option(t.name, t.code)));
+  $("subs-setting").hidden = !s.subtitles.length;
+
+  $("download-error").textContent = "";
+  $("preview").hidden = false;
+  document.querySelector(".intake").classList.add("compact");
+  render();
+}
+
+function render() {
+  const s = state.summary;
+  if (!s) return;
+  for (const t of ["video", "audio"]) {
+    $(`tab-${t}`).setAttribute("aria-selected", state.tab === t);
+    $(`pane-${t}`).hidden = state.tab !== t;
+  }
+  document.querySelectorAll(".seg").forEach((seg) => {
+    const value = String(state[seg.dataset.setting]);
+    seg.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.value === value));
+  });
+  $("sponsorblock").setAttribute("aria-pressed", state.sponsorblock);
+  $("trim-toggle").setAttribute("aria-pressed", state.trim);
+  $("trim").hidden = !state.trim || state.tab === "images";
+  $("pane-images").hidden = state.tab !== "images";
+
+  renderVideoRows(s);
+  renderAudioRows(s);
+
+  const size = selectedSize();
+  $("download-size").textContent = size ? `· ${formatBytes(size)}` : "";
+  $("choice").textContent = describeChoice();
+}
+
+function videoPick(row) {
+  // Posts list resolutions only; each item's exact format is chosen when it downloads.
+  if (state.summary.items) return { size: null, codec: null, ok: true };
+  if (state.codec === "compatible") return { size: row.size_compatible, codec: row.codec_compatible, ok: !!row.codec_compatible };
+  return state.hdr ? { size: row.size, codec: row.codec, ok: true } : { size: row.size_sdr, codec: row.codec_sdr, ok: true };
+}
+
+function renderVideoRows(s) {
+  const list = $("video-rows");
+  const rows = s.video;
+  // In compatible mode, fall back to the best H.264 row if the selected one has none.
+  if (state.codec === "compatible" && rows.length) {
+    const current = rows.find((r) => r.res === state.res);
+    if (!current || !current.codec_compatible) state.res = rows.find((r) => r.codec_compatible)?.res ?? state.res;
+  }
+  list.replaceChildren(...rows.map((row) => {
+    const pick = videoPick(row);
+    const b = el("button", { className: "row", type: "button", role: "radio" });
+    b.setAttribute("aria-checked", row.res === state.res);
+    b.disabled = !pick.ok;
+    const spec = el("span", { className: "spec mono" });
+    spec.append(`${row.res}p${pick.codec ? ` · ${pick.codec}` : ""}${row.fps && row.fps > 30 ? ` · ${Math.round(row.fps)} fps` : ""}`);
+    if (row.hdr && state.hdr && state.codec !== "compatible") spec.append(el("span", { className: "tag hot", textContent: "HDR" }));
+    b.append(el("span", { className: "q", textContent: row.label }), spec,
+             el("span", { className: "size mono", textContent: pick.ok ? (pick.size ? formatBytes(pick.size) : "") : "n/a" }));
+    b.addEventListener("click", () => { state.res = row.res; render(); });
+    return b;
+  }));
+  const maxCompatible = rows.find((r) => r.codec_compatible);
+  $("video-note").textContent = s.items
+    ? `${s.items} items, saved together as one ZIP. The quality is the highest each item has, up to your pick.`
+    : state.codec === "compatible" && maxCompatible && maxCompatible.res !== rows[0]?.res
+      ? `H.264 goes up to ${maxCompatible.label} here. Switch to Max quality for ${rows[0].label}.` : "";
+}
+
+function audioSize(id, s) {
+  const a = s.audio, d = s.duration;
+  if (!d) return a?.size ?? null;
+  switch (id) {
+    case "original": case "opus": return a?.size ?? null;
+    case "mp3": return d * Number(state.mp3Bitrate) * 125;
+    case "m4a": return d * 128 * 125;
+    case "flac": return d * 1536 * 125 * 0.6;
+    case "wav": return d * 1536 * 125;
+  }
+}
+
+function renderAudioRows(s) {
+  $("audio-rows").replaceChildren(...AUDIO_FORMATS.map((f) => {
+    const b = el("button", { className: "row audio", type: "button", role: "radio" });
+    b.setAttribute("aria-checked", state.audioFormat === f.id);
+    const desc = el("span", { className: "desc", textContent: f.desc(s.audio) });
+    const size = audioSize(f.id, s);
+    const right = el("span", { className: "size mono", textContent: size ? `${f.id === "original" || f.id === "opus" ? "" : "~"}${formatBytes(size)}` : "" });
+    const name = el("span", { className: "q" });
+    name.append(f.name);
+    b.append(name, desc, right);
+    if (f.tag) desc.prepend(el("span", { className: "tag hot", textContent: f.tag }), " ");
+    b.addEventListener("click", () => { state.audioFormat = f.id; render(); });
+    return b;
+  }));
+  $("bitrate-setting").hidden = state.audioFormat !== "mp3";
+  const source = s.audio?.bitrate;
+  $("audio-note").textContent = state.audioFormat === "mp3" && source && Number(state.mp3Bitrate) > source * 1.5
+    ? `The source is ${source} kbps ${s.audio.codec}. A higher MP3 bitrate makes a bigger file but can't add detail that isn't there.` : "";
+}
+
+function selectedSize() {
+  const s = state.summary;
+  if (state.tab === "images") return null;
+  if (state.tab === "audio") return audioSize(state.audioFormat, s);
+  const row = s.video.find((r) => r.res === state.res);
+  return row ? videoPick(row).size : null;
+}
+
+function describeChoice() {
+  const s = state.summary;
+  if (state.tab === "images") return s.items > 1 ? `${s.items} images · ZIP` : "Image";
+  if (state.tab === "audio") {
+    const f = AUDIO_FORMATS.find((x) => x.id === state.audioFormat);
+    return f.id === "mp3" ? `MP3 · ${state.mp3Bitrate} kbps` : f.id === "original" ? `Original · ${s.audio?.codec ?? "source"}` : f.name;
+  }
+  const row = s.video.find((r) => r.res === state.res);
+  if (!row) return "";
+  const pick = videoPick(row);
+  return [state.container.toUpperCase(), `${row.res}p ${pick.codec ?? ""}`.trim(), state.codec !== "compatible" && state.hdr ? "HDR" : null,
+          state.subtitles ? "subtitles" : null].filter(Boolean).join(" · ");
+}
+
+// ---- controls ----
+$("tab-video").addEventListener("click", () => { state.tab = "video"; render(); });
+$("tab-audio").addEventListener("click", () => { state.tab = "audio"; render(); });
+document.querySelectorAll(".seg").forEach((seg) => seg.addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const key = seg.dataset.setting;
+  state[key] = key === "hdr" ? b.dataset.value === "true" : b.dataset.value;
+  render();
+}));
+$("subtitles").addEventListener("change", (e) => { state.subtitles = e.target.value; render(); });
+$("sponsorblock").addEventListener("click", () => { state.sponsorblock = !state.sponsorblock; render(); });
+$("trim-toggle").addEventListener("click", () => { state.trim = !state.trim; render(); });
+
+$("download").addEventListener("click", async () => {
+  if (!state.summary) return;
+  $("download-error").textContent = "";
+  const body = { url: state.url, kind: state.tab === "audio" ? "audio" : "video", sponsorblock: state.sponsorblock };
+  if (state.tab === "images") {
+    body.sponsorblock = false;
+  } else if (state.tab === "video") {
+    Object.assign(body, { quality: String(state.res ?? "best"), codec: state.codec, hdr: state.hdr, container: state.container });
+    if (state.subtitles) body.subtitles = state.subtitles;
+  } else {
+    body.audio_format = state.audioFormat;
+    if (state.audioFormat === "mp3") body.audio_bitrate = state.mp3Bitrate;
+  }
+  if (state.trim && state.tab !== "images") {
+    if ($("start").value.trim()) body.start = $("start").value.trim();
+    if ($("end").value.trim()) body.end = $("end").value.trim();
+    body.precise_trim = $("precise").checked;
+  }
+  $("download").disabled = true;
+  try {
+    const res = await fetch("/api/jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(errorMessage(data));
+    addJob(data, { describe: describeChoice() });
+    poll(data.id);
+    document.querySelector(".queue").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  } catch (err) {
+    $("download-error").textContent = err.message === "Failed to fetch" ? "Can't reach the Aio engine." : err.message;
+  } finally {
+    $("download").disabled = false;
+  }
+});
+
+// ---- queue ----
+const jobs = new Map(); // id -> { el, describe }
+
+function addJob(job, { append = false, describe = "" } = {}) {
+  const node = $("job-template").content.firstElementChild.cloneNode(true);
+  const img = node.querySelector("img");
+  img.addEventListener("error", () => img.removeAttribute("src"));
+  if (job.kind === "audio") node.querySelector(".jthumb use").setAttribute("href", "#i-music");
+  node.querySelector(".remove").addEventListener("click", () => { node.remove(); jobs.delete(job.id); save(); updateEmpty(); });
+  jobs.set(job.id, { el: node, describe: describe || describeJob(job) });
+  append ? $("jobs").append(node) : $("jobs").prepend(node);
+  renderJob(job);
+  save();
+  updateEmpty();
+}
+
+function renderJob(job) {
+  const entry = jobs.get(job.id);
+  if (!entry) return;
+  const node = entry.el;
+  const active = job.status !== "completed" && job.status !== "failed";
+  node.dataset.status = job.status;
+  node.classList.toggle("indeterminate", active && job.progress == null);
+  const img = node.querySelector("img");
+  if (job.thumbnail && img.dataset.src !== job.thumbnail) { img.dataset.src = job.thumbnail; img.src = job.thumbnail; }
+  node.querySelector(".jtitle").textContent = job.title || job.url;
+  node.querySelector(".spec").textContent = entry.describe;
+  node.querySelector(".jbar i").style.width = job.progress == null ? "" : `${job.progress}%`;
+
+  let text = job.stage;
+  if (job.status === "completed") text = `Ready · ${formatBytes(job.file_size)} · ${expiresIn(job.expires_at)}`;
+  else if (job.status === "failed") text = job.error;
+  else {
+    const bits = [job.stage];
+    if (job.progress != null) bits.push(`${Math.round(job.progress)}%`);
+    if (job.speed) bits.push(`${formatBytes(job.speed)}/s`);
+    if (job.eta != null && job.eta > 0) bits.push(`${clock(job.eta)} left`);
+    text = bits.join(" · ");
+  }
+  node.querySelector(".state").textContent = text;
+
+  const saveLink = node.querySelector(".save");
+  saveLink.hidden = job.status !== "completed";
+  if (job.download_url) { saveLink.href = job.download_url; saveLink.download = job.filename; }
+}
+
+function describeJob(job) {
+  if (job.kind === "audio") return job.audio_format === "mp3" ? `MP3 · ${job.audio_bitrate} kbps` : job.audio_format.toUpperCase();
+  return [job.container.toUpperCase(), job.quality === "best" ? "best" : `${job.quality}p`, job.codec === "compatible" ? "H.264" : null].filter(Boolean).join(" · ");
+}
+
+async function poll(id) {
+  if (!jobs.has(id)) return;
+  let job;
+  try {
+    const res = await fetch(`/api/jobs/${encodeURIComponent(id)}`);
+    if (res.status === 404) { jobs.get(id)?.el.remove(); jobs.delete(id); save(); updateEmpty(); return; }
+    job = await res.json();
+  } catch {
+    setTimeout(() => poll(id), POLL_MS * 4);
+    return;
+  }
+  renderJob(job);
+  if (job.status !== "completed" && job.status !== "failed") setTimeout(() => poll(id), POLL_MS);
+}
+
+function save() { try { localStorage.setItem(SAVED_KEY, JSON.stringify([...jobs.keys()])); } catch {} }
+function updateEmpty() { $("empty").hidden = jobs.size > 0; }
+
+async function restore() {
+  let ids = [];
+  try { ids = JSON.parse(localStorage.getItem(SAVED_KEY)) || []; } catch {}
+  for (const id of ids) {
+    try {
+      const res = await fetch(`/api/jobs/${encodeURIComponent(id)}`);
+      if (!res.ok) continue;
+      const job = await res.json();
+      addJob(job, { append: true });
+      if (job.status !== "completed" && job.status !== "failed") poll(id);
+    } catch {}
+  }
+  save();
+  updateEmpty();
+}
+
+// ---- helpers ----
+function el(tag, props) { return Object.assign(document.createElement(tag), props); }
+function hostname(url) { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } }
+
+function clock(seconds) {
+  seconds = Math.round(seconds);
+  const h = Math.floor(seconds / 3600), m = Math.floor(seconds / 60) % 60, s = seconds % 60;
+  const mmss = `${h ? String(m).padStart(2, "0") : m}:${String(s).padStart(2, "0")}`;
+  return h ? `${h}:${mmss}` : mmss;
+}
+
+function formatBytes(bytes) {
+  if (bytes == null) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0;
+  while (bytes >= 1000 && i < units.length - 1) { bytes /= 1000; i++; }
+  return `${bytes.toFixed(i >= 2 && bytes < 100 ? 1 : 0)} ${units[i]}`;
+}
+
+function expiresIn(iso) {
+  const minutes = Math.max(0, (new Date(iso) - Date.now()) / 60000);
+  return minutes >= 90 ? `expires in ${Math.round(minutes / 60)} h` : `expires in ${Math.ceil(minutes)} min`;
+}
+
+restore();
+
+// Deep link: /?url=... opens straight to the options. The installed app's share target sends
+// url, text and title; Android apps often put the link inside "text", so look in all three.
+const params = new URLSearchParams(location.search);
+const linked = ["url", "text", "title"].map((k) => params.get(k)?.match(/https?:\/\/\S+/)?.[0]).find(Boolean);
+if (linked) {
+  history.replaceState(null, "", location.pathname);
+  urlInput.value = linked;
+  probe(linked);
+}
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>

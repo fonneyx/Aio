@@ -1,0 +1,33 @@
+[project]
+name = "aio-server"
+dynamic = ["version"]
+description = "Self-hosted Aio: web app, HTTP API and Telegram bot on top of aio-dl"
+license = "GPL-3.0-or-later"
+authors = [{ name = "fonneyx" }]
+requires-python = ">=3.12"
+dependencies = [
+    "aio-dl",
+    "fastapi>=0.157.0",
+    "python-telegram-bot>=22",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+aio-server = "aio_server.__main__:main"
+aio-bot = "aio_server.bot:main"
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "aio_server/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aio_server"]
+
+[tool.uv.sources]
+aio-dl = { workspace = true }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

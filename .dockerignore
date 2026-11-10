@@ -1,0 +1,12 @@
+**/__pycache__
+**/.pytest_cache
+**/.venv
+.venv
+.git
+.github
+.claude
+server/storage
+server/.env
+.env
+**/tests
+aio_concept_book.txt

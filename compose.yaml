@@ -1,0 +1,29 @@
+# docker compose up -d             -> web app on http://localhost:8000
+# docker compose --profile bot up -d   -> also the Telegram bot (needs AIO_TELEGRAM_TOKEN in .env)
+services:
+  web:
+    image: ghcr.io/fonneyx/aio:latest
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"  # drop "127.0.0.1:" to expose it, and set AIO_AUTH first
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - aio-data:/data
+    restart: unless-stopped
+
+  bot:
+    image: ghcr.io/fonneyx/aio:latest
+    build: .
+    command: aio-bot
+    profiles: [bot]
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - aio-data:/data
+    restart: unless-stopped
+
+volumes:
+  aio-data:

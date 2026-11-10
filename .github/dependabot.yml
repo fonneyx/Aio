@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    # yt-dlp ships fixes for broken sites often; keeping it current is the main maintenance task.
+    groups:
+      extractors:
+        patterns: ["yt-dlp*", "gallery-dl"]
