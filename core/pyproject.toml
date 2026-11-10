@@ -36,7 +36,7 @@ Issues = "https://github.com/fonneyx/Aio/issues"
 aio-grab = "aio_grab.cli:main"
 
 [build-system]
-requires = ["hatchling>=1.27"]
+requires = ["hatchling>=1.33.0"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
