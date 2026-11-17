@@ -7,7 +7,7 @@ authors = [{ name = "fonneyx" }]
 requires-python = ">=3.12"
 dependencies = [
     "aio-grab",
-    "fastapi>=0.157.0",
+    "fastapi>=0.163.0",
     "python-telegram-bot>=22",
     "uvicorn[standard]>=0.54.0",
 ]
