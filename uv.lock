@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -33,7 +33,7 @@ dependencies = [
 requires-dist = [
     { name = "gallery-dl", specifier = ">=1.32.17" },
     { name = "static-ffmpeg", specifier = ">=3.0" },
-    { name = "yt-dlp", extras = ["curl-cffi", "default"], specifier = ">=2026.8.19" },
+    { name = "yt-dlp", extras = ["curl-cffi", "default"], specifier = ">=2026.10.26" },
 ]
 
 [[package]]

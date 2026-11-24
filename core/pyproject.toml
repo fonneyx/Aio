@@ -25,7 +25,7 @@ classifiers = [
 dependencies = [
     "gallery-dl>=1.32.17",
     "static-ffmpeg>=3.0",
-    "yt-dlp[curl-cffi,default]>=2026.8.19",
+    "yt-dlp[curl-cffi,default]>=2026.10.26",
 ]
 
 [project.urls]
